@@ -16,11 +16,6 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install Rust
-        run: |
-          Invoke-WebRequest -Uri https://win.rustup.rs -OutFile rustup-init.exe
-          Start-Process -FilePath .\rustup-init.exe -ArgumentList '-y' -NoNewWindow -Wait
-          Remove-Item rustup-init.exe
       - name: Install Visual Studio Build Tools
         run: |
           Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
@@ -29,12 +24,20 @@ jobs:
             '--add', 'Microsoft.VisualStudio.Component.VC.Tools.ARM64', `
             '--add', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', `
             '--add', 'Microsoft.VisualStudio.Component.Windows11SDK.22000' `
-            -NoNewWindow
-          Remove-Item vs_buildtools.exe
+            -NoNewWindow -Wait
+          Remove-Item vs_buildtools.exe -Force -ErrorAction SilentlyContinue
+          if (Test-Path vs_buildtools.exe) {
+            Write-Warning "Failed to remove vs_buildtools.exe. This file may need manual cleanup."
+          }
       - name: Set up Visual Studio environment
         run: |
-          Import-Module "C:\BuildTools\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-          Enter-VsDevShell -VsInstallPath "C:\BuildTools" -SkipAutomaticLocation -DevCmdArguments "-arch=arm64 -host_arch=arm64"
+            Import-Module "C:\BuildTools\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+            Enter-VsDevShell -VsInstallPath "C:\BuildTools" -SkipAutomaticLocation -DevCmdArguments "-arch=arm64 -host_arch=arm64"
+      - name: Install Rust
+        run: |
+          Invoke-WebRequest -Uri https://win.rustup.rs -OutFile rustup-init.exe
+          Start-Process -FilePath .\rustup-init.exe -ArgumentList '-y' -NoNewWindow -Wait
+          Remove-Item rustup-init.exe
       - name: Set up Rust environment
         run: |
           $Env:RUSTUP_HOME="$Env:USERPROFILE\.rustup"
