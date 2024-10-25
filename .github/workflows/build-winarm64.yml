@@ -1,0 +1,31 @@
+name: rust-multiplatform
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-arm64
+            target: aarch64-pc-windows-msvc
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        run: |
+          Invoke-WebRequest -Uri https://win.rustup.rs -OutFile rustup-init.exe
+          Start-Process -FilePath .\rustup-init.exe -ArgumentList '-y' -NoNewWindow -Wait
+          Remove-Item rustup-init.exe
+      - name: Set up Rust environment
+        run: |
+          $Env:RUSTUP_HOME="$Env:USERPROFILE\.rustup"
+          $Env:CARGO_HOME="$Env:USERPROFILE\.cargo"
+          $Env:PATH += ";$Env:CARGO_HOME\bin"
+          rustc --version
+      - run: cargo test --target ${{ matrix.target }}
+      - run: cargo build --target ${{ matrix.target }}
