@@ -11,10 +11,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: macos-latest
-            target: aarch64-apple-darwin
-          - platform: macos-13
-            target: x86_64-apple-darwin
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+          - platform: win-arm64
+            target: aarch64-pc-windows-msvc
+          # - platform: macos-latest
+          #   target: aarch64-apple-darwin
+          # - platform: macos-13
+          #   target: x86_64-apple-darwin
           # - platform: linux-arm64
           #   target: aarch64-unknown-linux-gnu
           # - platform: ubuntu-latest
