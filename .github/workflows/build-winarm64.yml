@@ -1,4 +1,4 @@
-name: rust-multiplatform
+name: build-winarm64
 
 on:
   push:
