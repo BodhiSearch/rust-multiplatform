@@ -21,6 +21,20 @@ jobs:
           Invoke-WebRequest -Uri https://win.rustup.rs -OutFile rustup-init.exe
           Start-Process -FilePath .\rustup-init.exe -ArgumentList '-y' -NoNewWindow -Wait
           Remove-Item rustup-init.exe
+      - name: Install Visual Studio Build Tools
+        run: |
+          Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
+          Start-Process -FilePath .\vs_buildtools.exe -ArgumentList '--quiet', '--wait', '--norestart', '--nocache', `
+            '--installPath', 'C:\BuildTools', `
+            '--add', 'Microsoft.VisualStudio.Component.VC.Tools.ARM64', `
+            '--add', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', `
+            '--add', 'Microsoft.VisualStudio.Component.Windows11SDK.22000' `
+            -NoNewWindow -Wait
+          Remove-Item vs_buildtools.exe
+      - name: Set up Visual Studio environment
+        run: |
+          Import-Module "C:\BuildTools\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+          Enter-VsDevShell -VsInstallPath "C:\BuildTools" -SkipAutomaticLocation -DevCmdArguments "-arch=arm64 -host_arch=arm64"
       - name: Set up Rust environment
         run: |
           $Env:RUSTUP_HOME="$Env:USERPROFILE\.rustup"
