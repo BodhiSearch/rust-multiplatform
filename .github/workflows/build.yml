@@ -13,6 +13,7 @@ jobs:
         include:
           - platform: winarm64
             target: aarch64-pc-windows-msvc
+            native: true
           # - platform: windows-latest
           #   target: x86_64-pc-windows-msvc
           # - platform: windows-latest
@@ -20,9 +21,8 @@ jobs:
           # - platform: macos-latest
           #   target: aarch64-apple-darwin
           - platform: macos-latest
-            target: universal-apple-darwin
-          - platform: macos-latest
             target: aarch64-apple-ios
+            native: false
           # - platform: macos-13
           #   target: x86_64-apple-darwin
           # - platform: linux-arm64
@@ -40,4 +40,5 @@ jobs:
           platform: ${{ matrix.platform }}
           targets: ${{ matrix.target }}
       - run: cargo test --lib --target ${{ matrix.target }}
+        if: matrix.native == true
       - run: cargo build --target ${{ matrix.target }}
