@@ -1,4 +1,4 @@
-name: simple-avd
+name: simple-avd-arm
 
 on:
   push:
@@ -6,19 +6,14 @@ on:
       - main
 jobs:
   build:
-    runs-on: ubuntu-latest
-    if: false
+    runs-on: linux-arm64
     strategy:
       fail-fast: false
       matrix:
         include:
-          # - arch: x86
-          #   target: i686-linux-android
-          #   dinghy_platform: auto-android-i686-api29
-          #   api_level: 29
-          - arch: x86_64
-            target: x86_64-linux-android
-            dinghy_platform: auto-android-x86_64-api29
+          - arch: arm64-v8a
+            target: aarch64-linux-android
+            dinghy_platform: auto-android-aarch64-api29
             api_level: 29
     steps:
       - name: Enable KVM group perms
