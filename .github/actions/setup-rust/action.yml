@@ -1,9 +1,6 @@
 name: setup-rust
 description: setup rust and components
 inputs:
-  platform:
-    description: "Platform to build for"
-    required: true
   targets:
     description: "Targets to build for"
     required: false
@@ -18,7 +15,7 @@ runs:
           ~/.cargo/registry
           ~/.cargo/git
           ~/.cargo/bin
-        key: ${{ runner.os }}-${{ inputs.platform }}-${{ inputs.targets }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ runner.os }}-${{ inputs.targets }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     - name: install Rust stable
       uses: dtolnay/rust-toolchain@stable
       with:
