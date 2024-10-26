@@ -11,12 +11,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: windows-latest
-            target: x86_64-pc-windows-msvc
+          - platform: winarm64
+            target: aarch64-pc-windows-msvc
+          # - platform: windows-latest
+          #   target: x86_64-pc-windows-msvc
           # - platform: windows-latest
           #   target: aarch64-pc-windows-msvc
           # - platform: macos-latest
           #   target: aarch64-apple-darwin
+          - platform: macos-latest
+            target: universal-apple-darwin
+          - platform: macos-latest
+            target: aarch64-apple-ios
           # - platform: macos-13
           #   target: x86_64-apple-darwin
           # - platform: linux-arm64
@@ -26,7 +32,10 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-rust-winarm64
+        if: matrix.platform == 'winarm64'
       - uses: ./.github/actions/setup-rust
+        if: matrix.platform != 'winarm64'
         with:
           platform: ${{ matrix.platform }}
           targets: ${{ matrix.target }}
