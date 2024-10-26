@@ -11,9 +11,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - arch: x86
-            target: i686-linux-android
-            dinghy_platform: auto-android-i686-api29
+          # - arch: x86
+          #   target: i686-linux-android
+          #   dinghy_platform: auto-android-i686-api29
+          #   api_level: 29
+          - arch: x86_64
+            target: x86_64-linux-android
+            dinghy_platform: auto-android-x86_64-api29
             api_level: 29
     steps:
       - name: Enable KVM group perms
