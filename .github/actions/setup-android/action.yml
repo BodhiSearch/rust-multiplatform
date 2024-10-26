@@ -50,6 +50,6 @@ runs:
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: false
         ndk: ${{ inputs.ndk }}
-        arch: ${{ inputs.arch }}
+        # arch: ${{ inputs.arch }}
         # profile: ${{ inputs.profile }}
         script: echo "Generated AVD snapshot for caching."
