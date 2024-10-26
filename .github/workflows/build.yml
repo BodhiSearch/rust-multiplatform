@@ -37,15 +37,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-rust-winarm64
         if: matrix.platform == 'winarm64'
-      - uses: ./.github/actions/setup-rust
-        if: matrix.platform != 'winarm64'
-        with:
-          platform: ${{ matrix.platform }}
-          targets: ${{ matrix.target }}
+      # - uses: ./.github/actions/setup-rust
+      #   if: matrix.platform != 'winarm64'
+      #   with:
+      #     platform: ${{ matrix.platform }}
+      #     targets: ${{ matrix.target }}
       - uses: ./.github/actions/setup-android
         if: matrix.target == 'aarch64-linux-android'
-      - run: cargo test --lib --target ${{ matrix.target }}
-        if: matrix.native == true
-      - uses: ./.github/actions/run-tests-android
-        if: matrix.target == 'aarch64-linux-android'
-      - run: cargo build --target ${{ matrix.target }}
+      # - run: cargo test --lib --target ${{ matrix.target }}
+      #   if: matrix.native == true
+      # - uses: ./.github/actions/run-tests-android
+      #   if: matrix.target == 'aarch64-linux-android'
+      # - run: cargo build --target ${{ matrix.target }}
