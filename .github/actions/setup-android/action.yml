@@ -1,44 +1,40 @@
 name: setup-android
 description: setup android and ndk
 
+inputs:
+  api-level:
+    description: "API level to use"
+    required: false
+    default: "34"
+
 runs:
   using: composite
   steps:
-    - name: Set up JDK
-      uses: actions/setup-java@v4
+    - name: Enable KVM
+      shell: bash
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
+    - name: Gradle cache
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: AVD cache
+      uses: actions/cache@v4
+      id: avd-cache
       with:
-        distribution: "temurin"
-        java-version: "17"
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-    - name: Set up Android NDK
-      uses: nttld/setup-ndk@v1
+        path: |
+          ~/.android/avd/*
+          ~/.android/adb*
+        key: avd-${{ matrix.api-level }}
+
+    - name: create AVD and generate snapshot for caching
+      if: steps.avd-cache.outputs.cache-hit != 'true'
+      uses: reactivecircus/android-emulator-runner@v2
       with:
-        ndk-version: r25c
-        local-cache: true
-    - name: Install cargo-ndk
-      shell: bash
-      run: cargo install cargo-ndk
-
-    - name: Install KVM dependencies
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libvirt-clients libvirt-daemon-system bridge-utils qemu-kvm cpu-checker
-        sudo kvm-ok || true  # Print KVM status but don't fail if not available
-
-    - name: Setup Android SDK tools
-      shell: bash
-      run: |
-        sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-        sdkmanager --install "system-images;android-34;google_apis;arm64-v8a"
-        echo "no" | avdmanager create avd --force --name test_avd --package "system-images;android-34;google_apis;arm64-v8a" --device "pixel_6"
-
-    - name: Enable KVM group permissions
-      shell: bash
-      run: |
-        echo "Adding KVM permissions..."
-        sudo usermod -aG kvm $USER
-        sudo usermod -aG libvirt $USER
-        sudo chown $USER /dev/kvm || true
-        ls -la /dev/kvm || true
+        api-level: ${{ inputs.api-level }}
+        force-avd-creation: false
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        disable-animations: false
+        script: echo "Generated AVD snapshot for caching."
