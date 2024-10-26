@@ -16,6 +16,7 @@ jobs:
           ls /dev/kvm
 
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-rust
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -30,6 +31,7 @@ jobs:
           script: |
             echo "Running tests"
             adb devices
+            cargo dinghy -d emulator-5554 test
             echo "Tests complete"
         env:
           API_LEVEL: 29
