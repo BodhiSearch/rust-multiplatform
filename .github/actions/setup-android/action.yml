@@ -1,0 +1,44 @@
+name: setup-android
+description: setup android and ndk
+
+runs:
+  using: composite
+  steps:
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: "temurin"
+        java-version: "17"
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+    - name: Set up Android NDK
+      uses: nttld/setup-ndk@v1
+      with:
+        ndk-version: r25c
+        local-cache: true
+    - name: Install cargo-ndk
+      shell: bash
+      run: cargo install cargo-ndk
+
+    - name: Install KVM dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libvirt-clients libvirt-daemon-system bridge-utils qemu-kvm cpu-checker
+        sudo kvm-ok || true  # Print KVM status but don't fail if not available
+
+    - name: Setup Android SDK tools
+      shell: bash
+      run: |
+        sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+        sdkmanager --install "system-images;android-34;google_apis;arm64-v8a"
+        echo "no" | avdmanager create avd --force --name test_avd --package "system-images;android-34;google_apis;arm64-v8a" --device "pixel_6"
+
+    - name: Enable KVM group permissions
+      shell: bash
+      run: |
+        echo "Adding KVM permissions..."
+        sudo usermod -aG kvm $USER
+        sudo usermod -aG libvirt $USER
+        sudo chown $USER /dev/kvm || true
+        ls -la /dev/kvm || true

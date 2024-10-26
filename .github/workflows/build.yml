@@ -11,24 +11,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: winarm64
-            target: aarch64-pc-windows-msvc
-            native: true
+          # - platform: winarm64
+          #   target: aarch64-pc-windows-msvc
+          #   native: true
           # - platform: windows-latest
           #   target: x86_64-pc-windows-msvc
           # - platform: windows-latest
           #   target: aarch64-pc-windows-msvc
           # - platform: macos-latest
           #   target: aarch64-apple-darwin
-          - platform: macos-latest
-            target: aarch64-apple-ios
-            native: false
+          # - platform: macos-latest
+          #   target: aarch64-apple-ios
+          #   native: false
           # - platform: macos-13
           #   target: x86_64-apple-darwin
           # - platform: linux-arm64
           #   target: aarch64-unknown-linux-gnu
           # - platform: ubuntu-latest
           #   target: x86_64-unknown-linux-gnu
+          - platform: ubuntu-latest
+            target: aarch64-linux-android
+            native: false
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -39,6 +42,10 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
           targets: ${{ matrix.target }}
+      - uses: ./.github/actions/setup-android
+        if: matrix.target == 'aarch64-linux-android'
       - run: cargo test --lib --target ${{ matrix.target }}
         if: matrix.native == true
+      - uses: ./.github/actions/run-tests-android
+        if: matrix.target == 'aarch64-linux-android'
       - run: cargo build --target ${{ matrix.target }}

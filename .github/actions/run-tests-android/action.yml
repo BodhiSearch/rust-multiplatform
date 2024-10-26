@@ -1,0 +1,59 @@
+name: run-tests-android
+description: run tests on android
+
+runs:
+  using: composite
+  steps:
+    - name: install dinghy
+      shell: bash
+      run: |
+        if ! cargo dinghy -V &> /dev/null; then
+          cargo install cargo-dinghy
+        fi
+    - name: Start Android Emulator
+      shell: bash
+      run: |
+        # Export NDK environment variables
+        export ANDROID_NDK_HOME=$ANDROID_NDK_ROOT
+        export PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
+
+        # Start emulator with acceleration if available
+        $ANDROID_HOME/emulator/emulator -avd test_avd -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -no-boot-anim -camera-back none -camera-front none -accel on &
+
+        # Wait for emulator to be ready
+        max_attempts=30
+        attempt=1
+        while [ $attempt -le $max_attempts ]; do
+          if adb wait-for-device shell 'getprop sys.boot_completed' 2>/dev/null | grep -q '1'; then
+            echo "Emulator is ready!"
+            break
+          fi
+          echo "Waiting for emulator... (Attempt $attempt/$max_attempts)"
+          sleep 10
+          attempt=$((attempt + 1))
+        done
+
+        if [ $attempt -gt $max_attempts ]; then
+          echo "Emulator failed to start"
+          exit 1
+        fi
+
+        # Print emulator status
+        adb devices
+        adb shell getprop ro.product.cpu.abi
+
+    - name: Set ADB_DEVICE_ID
+      shell: bash
+      run: |
+        export ADB_DEVICE_ID=$(adb devices | sed -n '2p' | cut -f1)
+        echo "ADB_DEVICE_ID=$ADB_DEVICE_ID" >> $GITHUB_ENV
+        echo "ADB device ID: $ADB_DEVICE_ID"
+
+    - name: run tests
+      shell: bash
+      run: cargo dinghy -d ${ADB_DEVICE_ID} test
+
+    - name: Stop Android Emulator
+      if: always()
+      shell: bash
+      run: adb emu kill
