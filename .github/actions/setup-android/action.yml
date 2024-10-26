@@ -6,6 +6,18 @@ inputs:
     description: "API level to use"
     required: false
     default: "34"
+  ndk:
+    description: "NDK version to use"
+    required: false
+    default: "27.1.12297006"
+  arch:
+    description: "Architecture to use"
+    required: false
+    default: "arm64-v8a"
+  profile:
+    description: "Profile to use"
+    required: false
+    default: "medium_phone"
 
 runs:
   using: composite
@@ -37,4 +49,7 @@ runs:
         force-avd-creation: false
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: false
+        ndk: ${{ inputs.ndk }}
+        arch: ${{ inputs.arch }}
+        profile: ${{ inputs.profile }}
         script: echo "Generated AVD snapshot for caching."
