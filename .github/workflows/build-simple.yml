@@ -40,6 +40,5 @@ jobs:
           script: |
             echo "Running tests"
             adb devices
-            export ADB_DEVICE_ID=$(adb devices | sed -n '2p' | cut -f1)
-            cargo dinghy --platform ${{ matrix.dinghy_platform }} -d ${ADB_DEVICE_ID} test
+            cargo dinghy --platform ${{ matrix.dinghy_platform }} -d emulator-5554 test
             echo "Tests complete"
