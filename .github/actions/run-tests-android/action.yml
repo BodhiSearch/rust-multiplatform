@@ -32,7 +32,7 @@ runs:
         disable-animations: false
         ndk: ${{ inputs.ndk }}
         arch: ${{ inputs.arch }}
-        profile: ${{ inputs.profile }}
+        # profile: ${{ inputs.profile }}
         script: |
           export ADB_DEVICE_ID=$(adb devices | sed -n '2p' | cut -f1) && \
           cargo dinghy -d ${ADB_DEVICE_ID} test
