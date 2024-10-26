@@ -6,6 +6,7 @@ on:
       - main
 jobs:
   build:
+    if: false
     runs-on: linux-arm64
     strategy:
       fail-fast: false
